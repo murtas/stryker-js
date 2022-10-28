@@ -29,6 +29,11 @@ const BROKEN_PIPE_ERROR_CODE = 'EPIPE';
 const IPC_CHANNEL_CLOSED_ERROR_CODE = 'ERR_IPC_CHANNEL_CLOSED';
 const TIMEOUT_FOR_DISPOSE = 2000;
 
+
+export interface IdGenerator {
+  next(): number;
+}
+
 export class ChildProcessProxy<T> implements Disposable {
   public readonly proxy: Promisified<T>;
 
@@ -51,9 +56,14 @@ export class ChildProcessProxy<T> implements Disposable {
     fileDescriptions: FileDescriptions,
     pluginModulePaths: readonly string[],
     workingDirectory: string,
-    execArgv: string[]
+    execArgv: string[],
+    idGenerator: IdGenerator,
   ) {
-    this.worker = childProcess.fork(fileURLToPath(new URL('./child-process-proxy-worker.js', import.meta.url)), { silent: true, execArgv });
+    this.worker = childProcess.fork(fileURLToPath(new URL('./child-process-proxy-worker.js', import.meta.url)), {
+      silent: true,
+      execArgv,
+      env: { STRYKER_MUTATOR_WORKER: idGenerator.next().toString() },
+    });
     this.initTask = new Task();
     this.log.debug('Started %s in child process %s%s', namedExport, this.worker.pid, execArgv.length ? ` (using args ${execArgv.join(' ')})` : '');
     // Listen to `close`, not `exit`, see https://github.com/stryker-mutator/stryker-js/issues/1634
@@ -87,7 +97,8 @@ export class ChildProcessProxy<T> implements Disposable {
     pluginModulePaths: readonly string[],
     workingDirectory: string,
     injectableClass: InjectableClass<ChildProcessContext, R, Tokens>,
-    execArgv: string[]
+    execArgv: string[],
+    idGenerator: IdGenerator
   ): ChildProcessProxy<R> {
     return new ChildProcessProxy(
       modulePath,
@@ -97,7 +108,8 @@ export class ChildProcessProxy<T> implements Disposable {
       fileDescriptions,
       pluginModulePaths,
       workingDirectory,
-      execArgv
+      execArgv,
+      idGenerator
     );
   }
 

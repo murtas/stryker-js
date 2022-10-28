@@ -25,7 +25,8 @@ export class ChildProcessTestRunnerProxy implements TestRunner {
     sandboxWorkingDirectory: string,
     loggingContext: LoggingClientContext,
     pluginModulePaths: readonly string[],
-    private readonly log: Logger
+    private readonly log: Logger,
+    idGenerator: IdGenerator
   ) {
     this.worker = ChildProcessProxy.create(
       new URL('./child-process-test-runner-worker.js', import.meta.url).toString(),
@@ -35,7 +36,8 @@ export class ChildProcessTestRunnerProxy implements TestRunner {
       pluginModulePaths,
       sandboxWorkingDirectory,
       ChildProcessTestRunnerWorker,
-      options.testRunnerNodeArgs
+      options.testRunnerNodeArgs,
+      idGenerator
     );
   }
 

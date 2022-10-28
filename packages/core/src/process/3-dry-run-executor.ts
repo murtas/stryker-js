@@ -69,6 +69,14 @@ export class DryRunExecutor {
 
   public async execute(): Promise<Injector<MutationTestContext>> {
     const testRunnerInjector = this.injector
+      .provideClass(
+        'worker-id-generator',
+        class {
+          public next(): number {
+            return 0;
+          }
+        }
+      )
       .provideFactory(coreTokens.testRunnerFactory, createTestRunnerFactory)
       .provideValue(coreTokens.testRunnerConcurrencyTokens, this.concurrencyTokenProvider.testRunnerToken$)
       .provideFactory(coreTokens.testRunnerPool, createTestRunnerPool);
