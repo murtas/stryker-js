@@ -7,6 +7,7 @@ import { LogConfigurator } from './logging/index.js';
 import { PrepareExecutor, MutantInstrumenterExecutor, DryRunExecutor, MutationTestExecutor } from './process/index.js';
 import { coreTokens, provideLogger } from './di/index.js';
 import { retrieveCause, ConfigError } from './errors.js';
+import { HeapMemoryDumper } from './utils/heap-memory-snapshotter.js';
 
 /**
  * The main Stryker class.
@@ -28,6 +29,7 @@ export class Stryker {
       // 1. Prepare. Load Stryker configuration, load the input files and starts the logging server
       const prepareExecutor = loggerProvider.injectClass(PrepareExecutor);
       const mutantInstrumenterInjector = await prepareExecutor.execute(this.cliOptions);
+      mutantInstrumenterInjector.provideClass('dump', HeapMemoryDumper).resolve('dump'); // start
 
       try {
         // 2. Mutate and instrument the files and write to the sandbox.

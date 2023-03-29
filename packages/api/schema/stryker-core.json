@@ -300,6 +300,11 @@
       "type":"boolean",
       "default": false
     },
+    "heapSnapshotsInterval": {
+      "description": "Interval in seconds to take heap snapshots. This is useful to find memory leaks. Defaults to 0 (disabled).",
+      "type": "number",
+      "default": 0
+    },
     "eventReporter": {
       "description": "The options for the event recorder reporter.",
       "$ref": "#/definitions/eventRecorderOptions",

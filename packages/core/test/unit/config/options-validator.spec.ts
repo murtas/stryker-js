@@ -34,6 +34,7 @@ describe(OptionsValidator.name, () => {
         checkers: [],
         cleanTempDir: true,
         inPlace: false,
+        heapSnapshotsInterval: 0,
         ignorePatterns: [],
         ignoreStatic: false,
         incremental: false,
