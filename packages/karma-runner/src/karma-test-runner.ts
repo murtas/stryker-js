@@ -41,7 +41,9 @@ export class KarmaTestRunner implements TestRunner {
       karmaConfig: setup.config,
       karmaConfigFile: setup.configFile,
       disableBail: options.disableBail,
+      logLevel: options.logLevel,
     });
+    StrykerReporter.instance.log = getLogger(StrykerReporter.name);
   }
 
   public capabilities(): TestRunnerCapabilities {
@@ -87,7 +89,6 @@ export class KarmaTestRunner implements TestRunner {
   }
 
   private run(): Promise<DryRunResult> {
-    StrykerReporter.instance.log = this.log;
     const runPromise = StrykerReporter.instance.whenRunCompletes();
     this.runServer();
     return runPromise;

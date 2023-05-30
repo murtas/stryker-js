@@ -6,6 +6,8 @@ import { Logger, LoggerFactoryMethod } from '@stryker-mutator/api/logging';
 import { Config, ConfigOptions, ClientOptions, InlinePluginType } from 'karma';
 import { noopLogger, requireResolve } from '@stryker-mutator/util';
 
+import { LogLevel } from '@stryker-mutator/api/core';
+
 import { StrykerReporter, strykerReporterFactory } from './stryker-reporter.js';
 import { TestHooksMiddleware, TEST_HOOKS_FILE_NAME } from './test-hooks-middleware.js';
 
@@ -166,6 +168,7 @@ interface GlobalSettings {
   karmaConfigFile?: string;
   getLogger: LoggerFactoryMethod;
   disableBail: boolean;
+  logLevel: LogLevel;
 }
 
 const globalSettings: GlobalSettings = {
@@ -173,6 +176,7 @@ const globalSettings: GlobalSettings = {
     return noopLogger;
   },
   disableBail: false,
+  logLevel: LogLevel.Information,
 };
 
 export async function configureKarma(config: Config, requireFromCwd = requireResolve): Promise<void> {
@@ -186,6 +190,7 @@ export async function configureKarma(config: Config, requireFromCwd = requireRes
   configureTestHooksMiddleware(config);
   configureStrykerMutantCoverageAdapter(config);
   configureStrykerReporter(config);
+  configureLogLevel(config);
 }
 
 /**
@@ -198,4 +203,8 @@ configureKarma.setGlobals = (globals: Partial<GlobalSettings>) => {
   globalSettings.karmaConfigFile = globals.karmaConfigFile;
   globalSettings.getLogger = globals.getLogger ?? (() => noopLogger);
   globalSettings.disableBail = globals.disableBail ?? false;
+  globalSettings.logLevel = globals.logLevel ?? globalSettings.logLevel;
 };
+function configureLogLevel(config: Config) {
+  config.logLevel = globalSettings.logLevel.toUpperCase();
+}
