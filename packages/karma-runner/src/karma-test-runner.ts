@@ -87,6 +87,7 @@ export class KarmaTestRunner implements TestRunner {
   }
 
   private run(): Promise<DryRunResult> {
+    StrykerReporter.instance.log = this.log;
     const runPromise = StrykerReporter.instance.whenRunCompletes();
     this.runServer();
     return runPromise;

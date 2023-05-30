@@ -2,6 +2,7 @@ import { determineHitLimitReached, DryRunResult, DryRunStatus, TestResult, TestS
 import { MutantCoverage } from '@stryker-mutator/api/core';
 import karma from 'karma';
 import { Task } from '@stryker-mutator/util';
+import { Logger } from '@stryker-mutator/api/logging';
 
 export interface KarmaSpec {
   description: string;
@@ -47,6 +48,7 @@ export class StrykerReporter implements karma.Reporter {
   private runTask: Task<DryRunResult> | undefined;
   private karmaRunResult: karma.TestResults | undefined;
   private browserIsRestarting = false;
+  public log?: Logger;
 
   private static readonly _instance = new StrykerReporter();
   public static get instance(): StrykerReporter {
@@ -55,6 +57,7 @@ export class StrykerReporter implements karma.Reporter {
 
   public readonly onBrowsersReady = (): void => {
     this.initTask?.resolve();
+    this.log?.trace('KarmaStrykerReporter: onBrowsersReady');
     this.runTask?.resolve(this.collectRunResult());
   };
 
@@ -73,6 +76,7 @@ export class StrykerReporter implements karma.Reporter {
   public whenRunCompletes(): Promise<DryRunResult> {
     this.runTask = new Task();
     return this.runTask.promise.finally(() => {
+      this.log?.trace('KarmaStrykerReporter: Clearing run task');
       this.runTask = undefined;
     });
   }
@@ -116,6 +120,7 @@ export class StrykerReporter implements karma.Reporter {
   public readonly onRunComplete = (_browsers: unknown, runResult: karma.TestResults): void => {
     this.karmaRunResult = runResult;
     if (!this.browserIsRestarting) {
+      this.log?.trace('KarmaStrykerReporter: Resolving run task');
       this.runTask!.resolve(this.collectRunResult());
     }
   };
